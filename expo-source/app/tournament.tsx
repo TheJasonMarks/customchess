@@ -4,7 +4,6 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  SafeAreaView,
   ScrollView,
   TextInput,
   Alert,
@@ -12,6 +11,7 @@ import {
   Platform,
   KeyboardAvoidingView,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BOARD_THEMES, BoardTheme, DEFAULT_THEME } from '../src/utils/themes';
@@ -627,10 +627,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    paddingTop: 50,
-    marginTop: Platform.OS === 'android' ? 30 : 0,
+
     borderBottomWidth: 1,
-    minHeight: 100,
+    minHeight: 56,
   },
   backButton: {
     padding: 8,

@@ -4,7 +4,6 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  SafeAreaView,
   Dimensions,
   Alert,
   Image,
@@ -12,6 +11,7 @@ import {
   Share,
   Platform,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Chess, Square, PieceSymbol, Color } from 'chess.js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -786,9 +786,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    paddingTop: 50,
-    marginTop: Platform.OS === 'android' ? 30 : 0,
-    minHeight: 100,
+
+    minHeight: 56,
   },
   backButton: {
     padding: 8,
