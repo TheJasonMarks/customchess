@@ -23,7 +23,7 @@ import { soundManager } from '../src/utils/soundManager';
 import { usePurchases } from '../src/contexts/PurchaseContext';
 import InterstitialAd from '../src/components/InterstitialAd';
 import RewardedAd from '../src/components/RewardedAd';
-import { DIARRHEA_WORD_SET, PIECE_OVERLAYS, CORNER_LETTERS, DLC_IDS, getPieceType } from '../src/utils/dlcAssets';
+import { DIARRHEA_WORD_SET, PIECE_OVERLAYS_WHITE, PIECE_OVERLAYS_BLACK, CORNER_LETTERS, DLC_IDS, getPieceType } from '../src/utils/dlcAssets';
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 const { width } = Dimensions.get('window');
@@ -455,7 +455,9 @@ export default function GameScreen() {
     // If custom pieces are set
     if (customImage) {
       // Check if overlays or corner letters should be applied
-      const showOverlay = useOverlays && PIECE_OVERLAYS[pieceType];
+      // Use white overlay for black pieces, black overlay for white pieces (for contrast)
+      const overlaySet = piece.color === 'w' ? PIECE_OVERLAYS_BLACK : PIECE_OVERLAYS_WHITE;
+      const showOverlay = useOverlays && overlaySet[pieceType];
       const showCornerLetter = useCornerLetters && CORNER_LETTERS[pieceType];
       
       if (showOverlay || showCornerLetter) {
@@ -468,7 +470,7 @@ export default function GameScreen() {
             />
             {showOverlay && (
               <Image
-                source={PIECE_OVERLAYS[pieceType]}
+                source={overlaySet[pieceType]}
                 style={[styles.pieceOverlay, { opacity: 0.3 }]}
                 resizeMode="contain"
               />
