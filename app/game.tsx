@@ -23,6 +23,7 @@ import { soundManager } from '../src/utils/soundManager';
 import { usePurchases } from '../src/contexts/PurchaseContext';
 import InterstitialAd from '../src/components/InterstitialAd';
 import RewardedAd from '../src/components/RewardedAd';
+import { DIARRHEA_WORD_SET, PIECE_OVERLAYS, CORNER_LETTERS, DLC_IDS, getPieceType } from '../src/utils/dlcAssets';
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 const { width } = Dimensions.get('window');
@@ -110,10 +111,17 @@ export default function GameScreen() {
   const [blackTime, setBlackTime] = useState<number>(0);
   const [timeControl, setTimeControl] = useState<string>('unlimited');
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // DLC state
+  const [useDiarrheaDLC, setUseDiarrheaDLC] = useState<boolean>(false);
+  const [useOverlays, setUseOverlays] = useState<boolean>(false);
+  const [useCornerLetters, setUseCornerLetters] = useState<boolean>(false);
+  const [webPurchases, setWebPurchases] = useState<string[]>([]);
 
   useEffect(() => {
     loadSettings();
     loadGame();
+    loadDLCSettings();
     if (pieceSetId) {
       loadPieceSet();
     }
@@ -125,6 +133,35 @@ export default function GameScreen() {
       }
     };
   }, []);
+  
+  // Load DLC settings and purchases
+  const loadDLCSettings = async () => {
+    try {
+      // Load web purchases
+      const purchases = await AsyncStorage.getItem('web_purchases');
+      if (purchases) {
+        const purchaseList = JSON.parse(purchases);
+        setWebPurchases(purchaseList);
+        
+        // Check if premium or specific DLC is purchased
+        const hasPremium = purchaseList.includes('premium_unlock') || purchaseList.includes('premium_plus');
+        const hasDiarrheaDLC = purchaseList.includes(DLC_IDS.DIARRHEA_SET) || hasPremium;
+        const hasOverlays = purchaseList.includes(DLC_IDS.LETTER_OVERLAYS) || purchaseList.includes(DLC_IDS.AUTO_OVERLAYS) || hasPremium;
+        const hasCornerLetters = purchaseList.includes(DLC_IDS.CORNER_LETTERS) || hasPremium;
+        
+        // Load user preference for DLC usage
+        const useDLC = await AsyncStorage.getItem('use_diarrhea_dlc');
+        const useOverlaysSetting = await AsyncStorage.getItem('use_overlays');
+        const useCornerSetting = await AsyncStorage.getItem('use_corner_letters');
+        
+        setUseDiarrheaDLC(hasDiarrheaDLC && useDLC === 'true');
+        setUseOverlays(hasOverlays && useOverlaysSetting === 'true');
+        setUseCornerLetters(hasCornerLetters && useCornerSetting === 'true');
+      }
+    } catch (error) {
+      console.error('Error loading DLC settings:', error);
+    }
+  };
 
   // Timer effect
   useEffect(() => {
@@ -398,9 +435,55 @@ export default function GameScreen() {
     if (!piece) return null;
     
     const pieceKey = getPieceKey(piece);
+    const pieceType = piece.type.toUpperCase(); // K, Q, R, B, N, P
     const customImage = customPieces[pieceKey];
     
+    // If Diarrhea DLC is active, use DLC pieces
+    if (useDiarrheaDLC) {
+      const dlcPiece = DIARRHEA_WORD_SET[pieceKey];
+      if (dlcPiece) {
+        return (
+          <Image
+            source={dlcPiece}
+            style={styles.pieceImage}
+            resizeMode="contain"
+          />
+        );
+      }
+    }
+    
+    // If custom pieces are set
     if (customImage) {
+      // Check if overlays or corner letters should be applied
+      const showOverlay = useOverlays && PIECE_OVERLAYS[pieceType];
+      const showCornerLetter = useCornerLetters && CORNER_LETTERS[pieceType];
+      
+      if (showOverlay || showCornerLetter) {
+        return (
+          <View style={styles.pieceWithOverlay}>
+            <Image
+              source={{ uri: customImage }}
+              style={styles.pieceImage}
+              resizeMode="contain"
+            />
+            {showOverlay && (
+              <Image
+                source={PIECE_OVERLAYS[pieceType]}
+                style={[styles.pieceOverlay, { opacity: 0.3 }]}
+                resizeMode="contain"
+              />
+            )}
+            {showCornerLetter && (
+              <Image
+                source={CORNER_LETTERS[pieceType]}
+                style={styles.cornerLetter}
+                resizeMode="contain"
+              />
+            )}
+          </View>
+        );
+      }
+      
       return (
         <Image
           source={{ uri: customImage }}
@@ -909,6 +992,25 @@ const styles = StyleSheet.create({
   pieceImage: {
     width: SQUARE_SIZE * 0.85,
     height: SQUARE_SIZE * 0.85,
+  },
+  pieceWithOverlay: {
+    width: SQUARE_SIZE * 0.85,
+    height: SQUARE_SIZE * 0.85,
+    position: 'relative',
+  },
+  pieceOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: SQUARE_SIZE * 0.85,
+    height: SQUARE_SIZE * 0.85,
+  },
+  cornerLetter: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    width: SQUARE_SIZE * 0.35,
+    height: SQUARE_SIZE * 0.35,
   },
   simplePiece: {
     width: SQUARE_SIZE * 0.7,

@@ -39,6 +39,12 @@ export default function SettingsScreen() {
   const [soundEnabled, setSoundEnabled] = useState<boolean>(true);
   const [matureContentEnabled, setMatureContentEnabled] = useState<boolean>(false);
   const [showAgeVerification, setShowAgeVerification] = useState<boolean>(false);
+  
+  // DLC settings
+  const [useDiarrheaDLC, setUseDiarrheaDLC] = useState<boolean>(false);
+  const [useOverlays, setUseOverlays] = useState<boolean>(false);
+  const [useCornerLetters, setUseCornerLetters] = useState<boolean>(false);
+  const [webPurchases, setWebPurchases] = useState<string[]>([]);
 
   useEffect(() => {
     loadSettings();
@@ -51,6 +57,12 @@ export default function SettingsScreen() {
       const difficulty = await AsyncStorage.getItem('chess_ai_difficulty');
       const sound = await AsyncStorage.getItem('chess_sound');
       const matureContent = await AsyncStorage.getItem('chess_mature_content');
+      
+      // Load DLC settings
+      const purchases = await AsyncStorage.getItem('web_purchases');
+      const useDLC = await AsyncStorage.getItem('use_diarrhea_dlc');
+      const useOverlaysSetting = await AsyncStorage.getItem('use_overlays');
+      const useCornerSetting = await AsyncStorage.getItem('use_corner_letters');
 
       if (theme) setSelectedTheme(theme);
       if (timeControl) setSelectedTimeControl(timeControl);
@@ -61,6 +73,17 @@ export default function SettingsScreen() {
         soundManager.setMuted(!soundOn);
       }
       if (matureContent === 'true') setMatureContentEnabled(true);
+      
+      // Load purchased DLCs
+      if (purchases) {
+        const purchaseList = JSON.parse(purchases);
+        setWebPurchases(purchaseList);
+      }
+      
+      // Load DLC toggle states
+      if (useDLC === 'true') setUseDiarrheaDLC(true);
+      if (useOverlaysSetting === 'true') setUseOverlays(true);
+      if (useCornerSetting === 'true') setUseCornerLetters(true);
     } catch (error) {
       console.error('Error loading settings:', error);
     }
@@ -104,6 +127,42 @@ export default function SettingsScreen() {
 
   const cancelAgeVerification = () => {
     setShowAgeVerification(false);
+  };
+  
+  // DLC toggle handlers
+  const toggleDiarrheaDLC = async (value: boolean) => {
+    setUseDiarrheaDLC(value);
+    await AsyncStorage.setItem('use_diarrhea_dlc', value.toString());
+  };
+  
+  const toggleOverlays = async (value: boolean) => {
+    setUseOverlays(value);
+    await AsyncStorage.setItem('use_overlays', value.toString());
+  };
+  
+  const toggleCornerLetters = async (value: boolean) => {
+    setUseCornerLetters(value);
+    await AsyncStorage.setItem('use_corner_letters', value.toString());
+  };
+  
+  // Helper functions to check if DLC is owned
+  const hasDiarrheaDLC = () => {
+    return webPurchases.includes('diarrhea_set') || 
+           webPurchases.includes('premium_unlock') || 
+           webPurchases.includes('premium_plus');
+  };
+  
+  const hasOverlays = () => {
+    return webPurchases.includes('letter_overlays') || 
+           webPurchases.includes('auto_overlays') ||
+           webPurchases.includes('premium_unlock') || 
+           webPurchases.includes('premium_plus');
+  };
+  
+  const hasCornerLetters = () => {
+    return webPurchases.includes('corner_letters') ||
+           webPurchases.includes('premium_unlock') || 
+           webPurchases.includes('premium_plus');
   };
 
   const currentTheme = BOARD_THEMES.find(t => t.id === selectedTheme) || DEFAULT_THEME;
@@ -157,6 +216,73 @@ export default function SettingsScreen() {
             />
           </View>
         </View>
+
+        {/* DLC Piece Sets - Only show if any DLC is purchased */}
+        {(hasDiarrheaDLC() || hasOverlays() || hasCornerLetters()) && (
+          <View style={styles.section}>
+            <Text style={[styles.sectionTitle, { color: currentTheme.textPrimary }]}>DLC Piece Sets</Text>
+            
+            {/* Diarrhea Word Set */}
+            {hasDiarrheaDLC() && (
+              <View style={[styles.soundRow, { backgroundColor: currentTheme.darkSquare + '30', marginBottom: 8 }]}>
+                <View style={styles.dlcInfo}>
+                  <Text style={[styles.soundLabel, { color: currentTheme.textPrimary }]}>
+                    Diarrhea Word Set
+                  </Text>
+                  <Text style={[styles.soundSubLabel, { color: currentTheme.textSecondary }]}>
+                    Replace pieces with text words
+                  </Text>
+                </View>
+                <Switch
+                  value={useDiarrheaDLC}
+                  onValueChange={toggleDiarrheaDLC}
+                  trackColor={{ false: '#767577', true: '#dc2626' }}
+                  thumbColor={useDiarrheaDLC ? '#dc2626' : '#f4f3f4'}
+                />
+              </View>
+            )}
+            
+            {/* Overlays */}
+            {hasOverlays() && (
+              <View style={[styles.soundRow, { backgroundColor: currentTheme.darkSquare + '30', marginBottom: 8 }]}>
+                <View style={styles.dlcInfo}>
+                  <Text style={[styles.soundLabel, { color: currentTheme.textPrimary }]}>
+                    Piece Overlays
+                  </Text>
+                  <Text style={[styles.soundSubLabel, { color: currentTheme.textSecondary }]}>
+                    Show letter overlay on custom pieces
+                  </Text>
+                </View>
+                <Switch
+                  value={useOverlays}
+                  onValueChange={toggleOverlays}
+                  trackColor={{ false: '#767577', true: currentTheme.accent + '80' }}
+                  thumbColor={useOverlays ? currentTheme.accent : '#f4f3f4'}
+                />
+              </View>
+            )}
+            
+            {/* Corner Letters */}
+            {hasCornerLetters() && (
+              <View style={[styles.soundRow, { backgroundColor: currentTheme.darkSquare + '30' }]}>
+                <View style={styles.dlcInfo}>
+                  <Text style={[styles.soundLabel, { color: currentTheme.textPrimary }]}>
+                    Corner Letters
+                  </Text>
+                  <Text style={[styles.soundSubLabel, { color: currentTheme.textSecondary }]}>
+                    Show piece letter in corner
+                  </Text>
+                </View>
+                <Switch
+                  value={useCornerLetters}
+                  onValueChange={toggleCornerLetters}
+                  trackColor={{ false: '#767577', true: currentTheme.accent + '80' }}
+                  thumbColor={useCornerLetters ? currentTheme.accent : '#f4f3f4'}
+                />
+              </View>
+            )}
+          </View>
+        )}
 
         {/* Board Theme */}
         <View style={styles.section}>
@@ -348,6 +474,10 @@ const styles = StyleSheet.create({
   },
   soundLabel: {
     fontSize: 16,
+  },
+  dlcInfo: {
+    flex: 1,
+    marginRight: 12,
   },
   themeGrid: {
     flexDirection: 'row',
