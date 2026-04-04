@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <!-- White Queen - Plunger with Crown -->
+  <rect x="90" y="60" width="20" height="100" fill="#8B4513" stroke="#333" stroke-width="2"/>
+  <ellipse cx="100" cy="160" rx="40" ry="25" fill="#333" stroke="#222" stroke-width="2"/>
+  <ellipse cx="100" cy="150" rx="35" ry="15" fill="#444"/>
+  <polygon points="60,60 80,30 100,50 120,30 140,60 100,70" fill="#FFD700" stroke="#333" stroke-width="2"/>
+  <circle cx="80" cy="35" r="5" fill="#FF69B4"/>
+  <circle cx="100" cy="25" r="5" fill="#FF69B4"/>
+  <circle cx="120" cy="35" r="5" fill="#FF69B4"/>
+  <text x="100" y="190" font-size="14" font-weight="bold" text-anchor="middle" fill="#FFD700">QUEEN</text>
+</svg>

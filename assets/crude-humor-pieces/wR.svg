@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <!-- White Rook - Toilet Paper Roll -->
+  <ellipse cx="100" cy="50" rx="50" ry="20" fill="#FFFFFF" stroke="#333" stroke-width="3"/>
+  <rect x="50" y="50" width="100" height="100" fill="#FFFFFF" stroke="#333" stroke-width="3"/>
+  <ellipse cx="100" cy="150" rx="50" ry="20" fill="#F5F5F5" stroke="#333" stroke-width="3"/>
+  <ellipse cx="100" cy="50" rx="20" ry="8" fill="#8B4513" stroke="#333" stroke-width="2"/>
+  <line x1="60" y1="70" x2="140" y2="70" stroke="#DDD" stroke-width="1" stroke-dasharray="5,5"/>
+  <line x1="60" y1="90" x2="140" y2="90" stroke="#DDD" stroke-width="1" stroke-dasharray="5,5"/>
+  <line x1="60" y1="110" x2="140" y2="110" stroke="#DDD" stroke-width="1" stroke-dasharray="5,5"/>
+  <line x1="60" y1="130" x2="140" y2="130" stroke="#DDD" stroke-width="1" stroke-dasharray="5,5"/>
+  <text x="100" y="185" font-size="14" font-weight="bold" text-anchor="middle" fill="#8B4513">ROOK</text>
+</svg>
